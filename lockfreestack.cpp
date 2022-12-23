@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <atomic>
 #include <thread>
 #include <mutex>
@@ -11,30 +11,18 @@ public:
 
 	Stack() : head(nullptr) {}
 
-	T Pop(T& value) {
-		Node* old_head = head.load(memory_order_relaxed);
-		if (old_head == nullptr) {
-			return INT_MIN;
-		}
-		Node* new_head;
-		do {
-			new_head = old_head->next;
-		} while (!head.compare_exchange_weak(old_head, new_head, memory_order_acquire, memory_order_relaxed));
-
-		//value = old_head->data;
-		return true;
+	void Pop(T& value) {
+		Node* old_head = head.load();
+		while (!head.compare_exchange_weak(old_head, old_head->next));
+		value = old_head->value;
 	}
 
-	void Push(T obj) {
-		Node* old_head = head.load(memory_order_relaxed);
-		Node* newnd = new Node;
-		newnd->value = obj;
-		do {
-			newnd->next = old_head;
-			head = newnd;
-		} while (!atomic_compare_exchange_weak(old_head, head, memory_order_acquire, memory_order_relaxed));
+	void Push(const T& obj) {
+		Node* newnd = new Node(obj);
+		newnd->next = head.load();
+		while (!head.compare_exchange_weak(newnd->next, newnd));
 	}
-
+	
 	void Print() {
 		Node* temp = head;
 		if (head != nullptr) {
@@ -51,10 +39,11 @@ public:
 	struct Node {
 		Node* next;
 		T value;
+		Node(const T& data) : value(data), next(nullptr) {}
 	};
 	atomic<Node*> head;
 };
-
+  
 int main() {
 	Stack<int> stk;
 	int value = 0;
