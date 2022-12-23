@@ -6,23 +6,27 @@ using namespace std;
 
 mutex mut;
 int j = 0;
+vector<int> vec;
+vector<bool> solution
+int flag = 0;
 
 
 bool IsItPrime(int num) {
 	if (num == 0 || num == 1) return false;
-	for (int i = 2; i <= num / 2; i++) {
+	for (int i = 2; i * i <= num; i++) {
 		if (num % i == 0) return false;
 	}
 	return true;
 }
 
-void Solution(vector<int>& vec, vector<bool>& solution) {
+void Solution() {
 	while (true) {
 		unique_lock<mutex> guard(mut);
 		if (j == vec.size()) return;
-		else j++;
+		j++;
+		flag = j;
 		guard.unlock();
-		if (IsItPrime(vec[j - 1])) solution[j - 1] = true;
+		if (IsItPrime(vec[flag - 1])) solution[flag - 1] = true;
 	}
 }
 
@@ -30,7 +34,8 @@ int main() {
 	cout << "Enter size: ";
 	int size;
 	cin >> size;
-	vector<int> vec(size);
+	vec.resize(size);
+	solution.resize(size);
 	srand(time(0));
 	for (int i = 0; i < size; i++) {
 		vec[i] = rand() % 100;
@@ -40,7 +45,6 @@ int main() {
 	cout << "Enter number of threads: ";
 	int numthr;
 	cin >> numthr;
-	vector <bool> solution(size);
 	vector<thread> thr;
 	for (int i = 0; i < numthr; i++) {
 		thr.emplace_back([&vec, &solution]() {Solution(vec, solution);});
