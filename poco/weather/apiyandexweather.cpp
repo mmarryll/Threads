@@ -28,7 +28,7 @@ int main() {
 	}
 
 	HTTPRequest request(HTTPRequest::HTTP_GET, path, HTTPMessage::HTTP_1_1);
-	request.add("X-Yandex-API-Key", "6fc2f12c-ba4f-4e40-8a63-e2aa267bd08f");
+	request.add("X-Yandex-API-Key", "*");
 	session.sendRequest(request);
 
 	HTTPResponse response;
