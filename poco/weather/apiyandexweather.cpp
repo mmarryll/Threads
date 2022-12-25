@@ -15,6 +15,7 @@ using namespace Poco;
 using namespace Poco::Net;
 using namespace Poco::JSON;
 
+
 int main() {
 	URI uri("http://api.weather.yandex.ru/v2/forecast?lat=53.893869&lon=27.547153");
 	HTTPClientSession session(uri.getHost(), uri.getPort());
@@ -27,26 +28,41 @@ int main() {
 	}
 
 	HTTPRequest request(HTTPRequest::HTTP_GET, path, HTTPMessage::HTTP_1_1);
-	request.add("X-Yandex-API-Key", "*");
+	request.add("X-Yandex-API-Key", "6fc2f12c-ba4f-4e40-8a63-e2aa267bd08f");
 	session.sendRequest(request);
+
 	HTTPResponse response;
 	istream& fin = session.receiveResponse(response);
-	cout << response.getStatus() << endl;
 
-	ofstream fout("report.json");
-	StreamCopier::copyStream(fin, fout);
+	//ofstream fout("report.json");
+	//StreamCopier::copyStream(fin, fout);
 
 	Parser parser;
 	Poco::Dynamic::Var result = parser.parse(fin);
 	Object::Ptr fullobj = result.extract<Object::Ptr>();
+
 	int now = fullobj->getValue<int>("now");
 	string now_dt = fullobj->getValue<string>("now_dt");
 	Object::Ptr info = fullobj->getObject("info");
 	Object::Ptr fact = fullobj->getObject("fact");
 	Object::Ptr forecasts = fullobj->getObject("forecasts");
 
+	int temp = fact->getValue<int>("temp");
 
-	cout << "Response code: " << response.getStatus()
-		<< " " << response.getReason() << std::endl;
+	int feels_like = fact->getValue<int>("feels_like");
+	
+	string condition = fact->getValue<string>("condition");
+
+	Object::Ptr tzinfo = info->getObject("tzinfo");
+	string locality = tzinfo->getValue<string>("name");
+	
+	string season = fact->getValue<string>("season");
+
+	cout <<"Current temperature: " <<  temp << endl;
+	cout <<"Feels like: " << feels_like << endl;
+	cout << "Current conditon: " << condition << endl;
+	cout <<"Current season: " <<  season << endl;
+	cout << "Locality of query: " << locality << endl;
+	
 	return 0;
 }
