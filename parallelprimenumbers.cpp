@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <vector>
 #include <thread>
 #include <mutex>
@@ -7,7 +7,7 @@ using namespace std;
 mutex mut;
 int j = 0;
 vector<int> vec;
-vector<bool> solution
+vector<bool> solution;
 int flag = 0;
 
 
@@ -47,7 +47,7 @@ int main() {
 	cin >> numthr;
 	vector<thread> thr;
 	for (int i = 0; i < numthr; i++) {
-		thr.emplace_back([&vec, &solution]() {Solution(vec, solution);});
+		thr.emplace_back([]() {Solution(); });
 	}
 	for (int i = 0; i < thr.size(); i++) {
 		thr[i].join();
